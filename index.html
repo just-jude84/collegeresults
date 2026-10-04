@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>School Result Management System</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  [hidden]{display:none !important}
+  body{
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:#eef2f7;color:#1b2430;font-size:15px;line-height:1.45;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+
+  /* ---------------- Buttons ---------------- */
+  .btn{
+    border:1px solid #cfd8e3;background:#fff;color:#1b2430;
+    padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;
+    cursor:pointer;transition:.15s;font-family:inherit;
+  }
+  .btn:hover{background:#f1f5f9}
+  .btn-primary{background:#0b6b3a;border-color:#0b6b3a;color:#fff}
+  .btn-primary:hover{background:#08522c}
+  .btn-gold{background:#b45309;border-color:#b45309;color:#fff}
+  .btn-gold:hover{background:#92400e}
+  .btn-danger{background:#fff;border-color:#f0b4b4;color:#b91c1c}
+  .btn-danger:hover{background:#fef2f2}
+  .btn-sm{padding:5px 10px;font-size:12px;border-radius:6px}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .icon-btn{
+    border:1px solid #cfd8e3;background:#fff;border-radius:6px;
+    width:28px;height:28px;line-height:1;font-size:13px;cursor:pointer;
+    color:#5a6b7f;padding:0;transition:.15s;
+  }
+  .icon-btn:hover{background:#f1f5f9;color:#0b6b3a;border-color:#0b6b3a}
+  .icon-btn.danger:hover{background:#fef2f2;color:#b91c1c;border-color:#f0b4b4}
+
+  /* ---------------- Inputs ---------------- */
+  input,select,textarea{
+    font:inherit;font-size:14px;padding:9px 10px;border:1px solid #cfd8e3;
+    border-radius:8px;background:#fff;color:#1b2430;width:100%;font-family:inherit;
+  }
+  input:focus,select:focus,textarea:focus{
+    outline:none;border-color:#0b6b3a;box-shadow:0 0 0 3px rgba(11,107,58,.12)
+  }
+  label.field{
+    display:flex;flex-direction:column;gap:5px;font-size:11.5px;font-weight:700;
+    color:#4a5568;text-transform:uppercase;letter-spacing:.5px;
+  }
+
+  /* ---------------- GATE ---------------- */
+  .gate{
+    position:fixed;inset:0;z-index:100;overflow-y:auto;
+    background:linear-gradient(140deg,#062d19,#0b6b3a 55%,#0e8a4a);
+    display:flex;align-items:center;justify-content:center;padding:26px 16px;
+  }
+  .gate-card{
+    background:#fff;border-radius:16px;width:100%;max-width:580px;
+    padding:28px 30px 24px;box-shadow:0 24px 60px rgba(0,0,0,.35);
+  }
+  .gate-head{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+  .gate-head .crest-lg{font-size:40px;line-height:1}
+  .gate-head h2{margin:0;font-size:20px;color:#0b6b3a;text-transform:uppercase;letter-spacing:.5px}
+  .gate-head p{margin:2px 0 0;font-size:12px;color:#5a6b7f}
+  .tabs{
+    display:flex;gap:6px;background:#eef2f7;padding:5px;
+    border-radius:10px;margin-bottom:18px;
+  }
+  .tabs button{
+    flex:1;border:none;background:transparent;padding:10px 8px;border-radius:7px;
+    font-weight:700;font-size:12.5px;cursor:pointer;color:#5a6b7f;font-family:inherit;
+    transition:.15s;
+  }
+  .tabs button.on{background:#fff;color:#0b6b3a;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  .gate-note{font-size:12.5px;color:#5a6b7f;margin:0 0 14px;line-height:1.5}
+  .gate-note b{color:#0b6b3a}
+  .gate-form label.field{margin-bottom:10px}
+  .gate-msg{font-size:12.5px;font-weight:600;margin:10px 0 0;line-height:1.4}
+  .gate-msg.err{color:#b91c1c}
+  .gate-msg.ok{color:#0b6b3a}
+  .gate-btn{width:100%;margin-top:16px;padding:12px;font-size:14px}
+  .gate-foot{
+    margin-top:20px;border-top:1px solid #e6ebf2;padding-top:14px;
+    font-size:11.5px;color:#8494a8;text-align:center;line-height:1.5
+  }
+  .gate-foot code{background:#f1f5f9;padding:2px 6px;border-radius:4px;color:#0b6b3a;font-weight:700}
+
+  /* ---------------- Topbar ---------------- */
+  .topbar{
+    background:linear-gradient(135deg,#0b6b3a,#0e8a4a);color:#fff;
+    padding:12px 0;box-shadow:0 2px 12px rgba(0,0,0,.18);
+    position:sticky;top:0;z-index:20;
+  }
+  .topbar.admin{background:linear-gradient(135deg,#1e3a8a,#1d4ed8)}
+  .topbar .wrap{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:12px}
+  .crest{font-size:28px;line-height:1}
+  .brand h1{margin:0;font-size:17px;letter-spacing:.3px}
+  .brand p{margin:0;font-size:11.5px;opacity:.85}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .topbar .btn{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.45);color:#fff}
+  .topbar .btn:hover{background:rgba(255,255,255,.3)}
+  .topbar .btn-primary{background:#fff;color:#0b6b3a;border-color:#fff}
+  .topbar .btn-primary:hover{background:#e8f5ee}
+  .topbar.admin .btn-primary{color:#1d4ed8}
+  .session-badge{
+    font-size:12px;font-weight:700;background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.35);padding:6px 12px;border-radius:20px;
+    max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+
+  /* ---------------- Nav tabs ---------------- */
+  .appnav{
+    background:#fff;border-bottom:1px solid #e6ebf2;position:sticky;top:56px;z-index:15;
+    box-shadow:0 1px 3px rgba(16,24,40,.04);
+  }
+  .appnav .wrap{display:flex;gap:2px;overflow-x:auto}
+  .appnav button{
+    background:none;border:none;padding:14px 18px;font-size:13.5px;font-weight:700;
+    color:#5a6b7f;cursor:pointer;border-bottom:3px solid transparent;
+    font-family:inherit;white-space:nowrap;transition:.15s;
+  }
+  .appnav button:hover{color:#0b6b3a;background:#f7fafc}
+  .appnav button.on{color:#0b6b3a;border-bottom-color:#0b6b3a}
+
+  /* ---------------- Cards ---------------- */
+  .card{
+    background:#fff;border-radius:12px;padding:18px 20px;margin:18px 0;
+    box-shadow:0 1px 3px rgba(16,24,40,.08),0 1px 2px rgba(16,24,40,.04);
+    border:1px solid #e6ebf2;
+  }
+  .card-title{
+    margin:0 0 12px;font-size:13px;text-transform:uppercase;
+    letter-spacing:.7px;color:#0b6b3a;font-weight:800;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .card-title .count{color:#8494a8;font-weight:600;text-transform:none;letter-spacing:0;font-size:12.5px}
+  .card-title .spacer{flex:1}
+  .hint{margin:-6px 0 12px;font-size:12.5px;color:#64748b}
+
+  .grid{display:grid;gap:12px}
+  .grid-2{grid-template-columns:1fr 1fr}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  .grid-4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:900px){.grid-4{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:1fr 1fr}}
+  @media(max-width:600px){.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}}
+
+  /* ---------------- Stats ---------------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+  @media(max-width:720px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{
+    background:#fff;border-radius:12px;padding:16px 18px;border:1px solid #e6ebf2;
+    box-shadow:0 1px 3px rgba(16,24,40,.06);
+  }
+  .stat span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.6px;
+    color:#5a6b7f;font-weight:700;margin-bottom:4px}
+  .stat b{font-size:26px;color:#0b6b3a;line-height:1}
+  .stat.blue b{color:#1d4ed8}
+  .stat.gold b{color:#b45309}
+  .stat.grey b{color:#5a6b7f}
+
+  /* ---------------- Tables ---------------- */
+  .table-scroll{overflow-x:auto}
+  .table-scroll.tall{max-height:560px;overflow-y:auto}
+  .table-scroll.tall thead th{position:sticky;top:0;z-index:2}
+  table{width:100%;border-collapse:collapse}
+  .data-table th,.data-table td{
+    border-bottom:1px solid #eef2f7;padding:9px 8px;font-size:13.5px;text-align:left;
+  }
+  .data-table thead th{
+    background:#f5f8fb;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;
+    color:#5a6b7f;border-bottom:2px solid #e0e7ef;white-space:nowrap;font-weight:700;
+  }
+  .data-table td.num,.data-table th.num{text-align:center}
+  .data-table tbody tr:hover{background:#f8fafc}
+  .data-table .empty{
+    text-align:center;color:#8494a8;font-style:italic;padding:26px;
+  }
+  .actions-cell{display:flex;gap:5px;justify-content:center}
+
+  .badge{
+    display:inline-block;font-size:10.5px;font-weight:800;padding:3px 8px;
+    border-radius:20px;text-transform:uppercase;letter-spacing:.4px;
+  }
+  .badge.available{background:#dcfce7;color:#166534}
+  .badge.issued{background:#fef3c7;color:#92400e}
+  .badge.used{background:#e0e7ff;color:#3730a3}
+  .badge.fail{background:#fee2e2;color:#991b1b}
+
+  .grade.good{color:#0b6b3a;font-weight:800}
+  .grade.credit{color:#1d4ed8;font-weight:800}
+  .grade.pass{color:#b45309;font-weight:800}
+  .grade.fail{color:#b91c1c;font-weight:800}
+
+  .row-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .toolbar-row{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;
+  }
+  .toolbar-row label.field{flex:1;min-width:160px}
+  .toolbar-row .btn{flex-shrink:0}
+
+  /* ---------------- Modal ---------------- */
+  .modal{
+    position:fixed;inset:0;z-index:120;background:rgba(16,24,40,.55);
+    display:flex;align-items:flex-start;justify-content:center;
+    padding:26px 16px;overflow-y:auto;
+  }
+  .modal-card{
+    background:#fff;border-radius:14px;width:100%;max-width:640px;
+    padding:22px 24px;box-shadow:0 24px 60px rgba(0,0,0,.35);
+    margin:auto;
+  }
+  .modal-card.wide{max-width:900px}
+  .modal-head{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #e6ebf2;
+  }
+  .modal-head h3{margin:0;font-size:16px;color:#0b6b3a;text-transform:uppercase;letter-spacing:.5px}
+  .modal-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:18px}
+
+  /* ---------------- Report sheet ---------------- */
+  .sheet{
+    background:#fff;border:1px solid #d8e0ea;border-radius:6px;padding:26px 30px;
+    box-shadow:0 4px 18px rgba(16,24,40,.08);max-width:900px;margin:0 auto;
+  }
+  .sheet-head{display:flex;gap:14px;align-items:center;border-bottom:3px double #0b6b3a;padding-bottom:12px}
+  .sheet-head .crest-lg{font-size:42px;line-height:1}
+  .sheet-head h2{margin:0;font-size:20px;color:#0b6b3a;text-transform:uppercase;letter-spacing:.6px}
+  .sheet-head p{margin:2px 0 0;font-size:12.5px;color:#5a6b7f}
+  .sheet-head .motto{font-style:italic;color:#0b6b3a}
+  .sheet-title{text-align:center;margin:16px 0 14px}
+  .sheet-title h3{margin:0;font-size:14px;letter-spacing:2px;text-transform:uppercase}
+  .sheet-title p{margin:4px 0 0;font-size:12.5px;color:#5a6b7f}
+  .bio{
+    display:grid;grid-template-columns:1fr 1fr;gap:4px 26px;font-size:13px;
+    background:#f7fafc;border:1px solid #e6ebf2;border-radius:8px;
+    padding:12px 16px;margin-bottom:14px;
+  }
+  .bio div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dotted #d8e0ea;padding:3px 0}
+  .bio span{color:#5a6b7f}
+  .sheet-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px}
+  .sheet-table th{
+    background:#0b6b3a;color:#fff;padding:7px 5px;font-size:10px;
+    text-transform:uppercase;letter-spacing:.4px;border:1px solid #0b6b3a;line-height:1.3;
+  }
+  .sheet-table td{border:1px solid #dbe3ec;padding:5px;text-align:center}
+  .sheet-table td.subj{text-align:left;font-weight:600}
+  .sheet-table tbody tr:nth-child(even){background:#f8fafc}
+  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+  .summary .box{border:1px solid #dbe3ec;border-radius:8px;padding:8px 6px;text-align:center;background:#f8fafc}
+  .summary .box span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#5a6b7f;font-weight:700}
+  .summary .box b{font-size:17px;color:#0b6b3a}
+  .key{display:flex;flex-wrap:wrap;gap:6px;font-size:11px;margin-bottom:16px}
+  .key span{border:1px solid #dbe3ec;border-radius:20px;padding:3px 9px;background:#f8fafc;color:#5a6b7f}
+  .key b{color:#0b6b3a}
+  .comments{display:grid;gap:8px;font-size:12.5px;margin-bottom:6px}
+  .comments div{display:flex;gap:10px;border-bottom:1px dotted #d8e0ea;padding-bottom:6px}
+  .comments span{font-weight:700;color:#5a6b7f;min-width:170px;flex-shrink:0}
+  .comments em{font-style:normal}
+  .signatures{
+    display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:30px;
+    font-size:11.5px;color:#5a6b7f;
+  }
+  .signatures div{border-top:1px solid #1b2430;padding-top:5px;text-align:center}
+
+  /* ---------------- Toast ---------------- */
+  #toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);
+    background:#1b2430;color:#fff;padding:11px 20px;border-radius:24px;
+    font-size:13px;font-weight:600;opacity:0;pointer-events:none;
+    transition:.25s;z-index:200;box-shadow:0 6px 22px rgba(0,0,0,.28);
+    max-width:90vw;text-align:center;
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+
+  footer.note{text-align:center;color:#8494a8;font-size:12px;padding:0 16px 34px}
+
+  /* ---------------- Print ---------------- */
+  @page{size:A4;margin:10mm}
+  @media print{
+    body{background:#fff;font-size:12px}
+    body > *:not(#reportModal){display:none !important}
+    #reportModal{
+      position:static;background:#fff;padding:0;display:block !important;
+      inset:auto;overflow:visible;
+    }
+    #reportModal .modal-card{
+      box-shadow:none;border-radius:0;padding:0;max-width:none;margin:0;
+    }
+    #reportModal .no-print{display:none !important}
+    .sheet{border:none;box-shadow:none;padding:0;max-width:none;border-radius:0;margin:0}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     ACCESS GATE
+     ============================================================ -->
+<div id="gate" class="gate">
+  <div class="gate-card">
+    <div class="gate-head">
+      <span class="crest-lg">🎓</span>
+      <div>
+        <h2>Result Management System</h2>
+        <p>Nigerian Secondary School Portal</p>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button type="button" id="tabReg" class="on">School Register</button>
+      <button type="button" id="tabLog">School Login</button>
+      <button type="button" id="tabAdm">Administrator</button>
+    </div>
+
+    <!-- Register -->
+    <form id="formReg" autocomplete="off" novalidate>
+      <p class="gate-note">
+        Enter your school details and one of the access keys issued by the
+        administrator. Each key can only be used once. Registrations are saved
+        on the school server.
+      </p>
+      <label class="field">School Name
+        <input id="regSchool" placeholder="e.g. Federal Government College" required>
+      </label>
+      <label class="field">Address
+        <input id="regAddress" placeholder="P.M.B. 1023, Ijanikin, Lagos State">
+      </label>
+      <label class="field">Motto
+        <input id="regMotto" placeholder="Knowledge, Discipline and Service">
+      </label>
+      <label class="field">Access Key
+        <input id="regKey" placeholder="EDU-XXXX-XXXX" spellcheck="false" autocapitalize="characters" required>
+      </label>
+      <div class="gate-msg" id="regMsg"></div>
+      <button class="btn btn-primary gate-btn" type="submit">Register School</button>
+    </form>
+
+    <!-- Login -->
+    <form id="formLog" autocomplete="off" hidden novalidate>
+      <p class="gate-note">
+        Enter the access key your school registered with to open your records.
+      </p>
+      <label class="field">Access Key
+        <input id="logKey" placeholder="EDU-XXXX-XXXX" spellcheck="false" autocapitalize="characters" required>
+      </label>
+      <div class="gate-msg" id="logMsg"></div>
+      <button class="btn btn-primary gate-btn" type="submit">Log In</button>
+    </form>
+
+    <!-- Admin -->
+    <form id="formAdm" autocomplete="off" hidden novalidate>
+      <p class="gate-note">
+        Administrator access — manage the 520 subscription keys issued to schools.
+      </p>
+      <label class="field">Administrator Password
+        <input id="admPw" type="password" placeholder="Enter administrator password" required>
+      </label>
+      <div class="gate-msg" id="admMsg"></div>
+      <button class="btn btn-primary gate-btn" type="submit">Enter Admin Console</button>
+      <p class="gate-foot">
+        Default password: <code>admin@2026</code><br>
+        Change it after your first login — the new password is saved on the server.
+      </p>
+    </form>
+  </div>
+</div>
+
+<!-- ============================================================
+     ADMIN PANEL
+     ============================================================ -->
+<div id="adminPanel" hidden>
+  <header class="topbar admin no-print">
+    <div class="wrap">
+      <div class="brand">
+        <span class="crest">🛡️</span>
+        <div>
+          <h1>Administrator Console</h1>
+          <p>Subscription Key Management</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn" id="admChangePw">Change Password</button>
+        <button class="btn btn-primary" id="admLogout">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="stats">
+      <div class="stat"><span>Total Keys</span><b id="statTotal">0</b></div>
+      <div class="stat blue"><span>Available</span><b id="statAvail">0</b></div>
+      <div class="stat gold"><span>Issued</span><b id="statIssued">0</b></div>
+      <div class="stat grey"><span>Used</span><b id="statUsed">0</b></div>
+    </div>
+
+    <section class="card">
+      <h2 class="card-title">
+        Key Administration
+        <span class="spacer"></span>
+        <button class="btn btn-sm" id="admGenKeys">Generate 520 Keys</button>
+        <button class="btn btn-sm" id="admDlTxt">Download TXT</button>
+        <button class="btn btn-sm" id="admDlCsv">Download CSV</button>
+      </h2>
+      <p class="hint">
+        Only the administrator can issue keys. Mark a key as <b>Issued</b> to reserve it
+        for a specific school, or leave it <b>Available</b> for any school to claim.
+        Once a school registers with a key it becomes <b>Used</b> and can no longer be reused.
+        The subscription pool holds <b>520</b> keys, all stored in the server database.
+      </p>
+
+      <div class="toolbar-row">
+        <label class="field" style="max-width:260px">Search
+          <input id="admKeySearch" placeholder="Key code, school or note…">
+        </label>
+        <label class="field" style="max-width:200px">Status
+          <select id="admKeyStatus">
+            <option value="">All statuses</option>
+            <option value="available">Available</option>
+            <option value="issued">Issued</option>
+            <option value="used">Used</option>
+          </select>
+        </label>
+        <button class="btn" id="admKeyClear">Clear</button>
+        <span class="hint" style="margin:0;flex:1;text-align:right" id="admKeyShown"></span>
+      </div>
+
+      <div class="table-scroll tall">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="num" style="width:48px">#</th>
+              <th>Access Key</th>
+              <th class="num">Status</th>
+              <th>Issued To</th>
+              <th>Registered School</th>
+              <th class="num" style="width:180px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admKeyBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Registered Schools <span class="count" id="admSchoolCount"></span></h2>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="num" style="width:48px">#</th>
+              <th>School Name</th>
+              <th>Address</th>
+              <th>Motto</th>
+              <th>Students</th>
+              <th>Registered</th>
+              <th class="num" style="width:100px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admSchoolBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============================================================
+     SCHOOL APP
+     ============================================================ -->
+<div id="app" hidden>
+  <header class="topbar no-print">
+    <div class="wrap">
+      <div class="brand">
+        <span class="crest">🎓</span>
+        <div>
+          <h1 id="appSchoolName">School Name</h1>
+          <p id="appSchoolMeta">Result Management System</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <span class="session-badge" id="sessionBadge"></span>
+        <button class="btn" id="btnExport">Backup JSON</button>
+        <button class="btn" id="btnImport">Restore</button>
+        <button class="btn btn-primary" id="btnLogout">Log out</button>
+        <input type="file" id="fileImport" accept=".json,application/json" hidden>
+      </div>
+    </div>
+  </header>
+
+  <nav class="appnav no-print">
+    <div class="wrap">
+      <button data-tab="students" class="on">Students</button>
+      <button data-tab="results">Result Entry</button>
+      <button data-tab="reports">Report Cards</button>
+      <button data-tab="settings">Settings</button>
+    </div>
+  </nav>
+
+  <main class="wrap">
+
+    <!-- ============ TAB: STUDENTS ============ -->
+    <section id="tab-students">
+      <div class="card">
+        <h2 class="card-title">
+          Student Records <span class="count" id="stuCount"></span>
+          <span class="spacer"></span>
+          <button class="btn btn-primary btn-sm" id="btnAddStudent">+ Add Student</button>
+        </h2>
+        <p class="hint">Full student records for JSS 1 – SS 3. Create, edit, view and delete any student.</p>
+        <div class="toolbar-row">
+          <label class="field" style="max-width:220px">Filter by Class
+            <select id="stuFilterClass"><option value="">All Classes</option></select>
+          </label>
+          <label class="field" style="max-width:300px">Search
+            <input id="stuSearch" placeholder="Name or admission number…">
+          </label>
+          <button class="btn" id="btnPrintClassList">🖨 Print Class List</button>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="num" style="width:48px">#</th>
+                <th>Admission No.</th>
+                <th>Name</th>
+                <th class="num">Gender</th>
+                <th class="num">Class</th>
+                <th>Guardian Phone</th>
+                <th class="num">Subjects</th>
+                <th class="num" style="width:170px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="stuBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TAB: RESULT ENTRY ============ -->
+    <section id="tab-results" hidden>
+      <div class="card">
+        <h2 class="card-title">Result Entry — Test &amp; Examination Scores</h2>
+        <p class="hint">
+          Select a class and a student, then enter CA 1 (max 20), CA 2 (max 20) and
+          Examination (max 60). Total is 100 marks. Grades are calculated automatically.
+        </p>
+        <div class="toolbar-row">
+          <label class="field" style="max-width:220px">Class
+            <select id="resClass"><option value="">— Select class —</option></select>
+          </label>
+          <label class="field" style="max-width:320px">Student
+            <select id="resStudent"><option value="">— Select student —</option></select>
+          </label>
+          <button class="btn" id="btnResSeed">Reset Subjects</button>
+          <button class="btn btn-primary" id="btnResSave" disabled>💾 Save Scores</button>
+        </div>
+      </div>
+
+      <div class="card" id="resEntryCard" hidden>
+        <h2 class="card-title">
+          Scores for <span id="resWhoLabel" style="color:#1b2430;text-transform:none;letter-spacing:0"></span>
+          <span class="spacer"></span>
+          <button class="btn btn-sm" id="btnResAddRow">+ Add Subject</button>
+        </h2>
+        <p class="hint" id="resTermLabel"></p>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="num" style="width:48px">S/N</th>
+                <th style="min-width:200px">Subject</th>
+                <th class="num">CA 1 (20)</th>
+                <th class="num">CA 2 (20)</th>
+                <th class="num">Exam (60)</th>
+                <th class="num">Total</th>
+                <th class="num">Grade</th>
+                <th>Remark</th>
+                <th class="num" style="width:52px"></th>
+              </tr>
+            </thead>
+            <tbody id="resBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TAB: REPORTS ============ -->
+    <section id="tab-reports" hidden>
+      <div class="card">
+        <h2 class="card-title">Individual Report Sheet</h2>
+        <p class="hint">Select a class and student, then preview and print a termly report sheet.</p>
+        <div class="toolbar-row">
+          <label class="field" style="max-width:220px">Class
+            <select id="repClass"><option value="">— Select class —</option></select>
+          </label>
+          <label class="field" style="max-width:320px">Student
+            <select id="repStudent"><option value="">— Select student —</option></select>
+          </label>
+          <button class="btn btn-primary" id="btnRepView">👁 Preview Report Sheet</button>
+          <button class="btn" id="btnRepPrint">🖨 Print</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Class Broadsheet</h2>
+        <p class="hint">Print a full class list showing each student's total, average, grade and position.</p>
+        <div class="toolbar-row">
+          <label class="field" style="max-width:220px">Class
+            <select id="broClass"><option value="">— Select class —</option></select>
+          </label>
+          <button class="btn btn-primary" id="btnBroView">👁 Preview Broadsheet</button>
+          <button class="btn" id="btnBroPrint">🖨 Print</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TAB: SETTINGS ============ -->
+    <section id="tab-settings" hidden>
+      <div class="card">
+        <h2 class="card-title">School Details</h2>
+        <div class="grid grid-3">
+          <label class="field">School Name<input id="setName"></label>
+          <label class="field">Address<input id="setAddress"></label>
+          <label class="field">Motto<input id="setMotto"></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Current Term &amp; Session</h2>
+        <div class="grid grid-3">
+          <label class="field">Term
+            <select id="setTerm">
+              <option>First Term</option><option>Second Term</option><option>Third Term</option>
+            </select>
+          </label>
+          <label class="field">Session<input id="setSession" placeholder="2025/2026"></label>
+          <label class="field">Vacation Date<input id="setVacation" type="date"></label>
+          <label class="field">Next Term Begins<input id="setResume" type="date"></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Grading Scale (WAEC / NECO)</h2>
+        <div class="key" id="setGradeKey"></div>
+        <p class="hint">
+          CA 1 max 20 &nbsp;•&nbsp; CA 2 max 20 &nbsp;•&nbsp; Exam max 60 &nbsp;•&nbsp; Total 100
+        </p>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Data Management</h2>
+        <div class="row-actions">
+          <button class="btn" id="btnExport2">Backup JSON</button>
+          <button class="btn" id="btnImport2">Restore JSON</button>
+          <button class="btn btn-danger" id="btnWipe">Delete All Students</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="note no-print">
+    All records are stored on the school server database. Use <b>Backup JSON</b> regularly.
+  </footer>
+</div>
+
+<!-- ============================================================
+     MODALS
+     ============================================================ -->
+<div id="studentModal" class="modal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="stuModalTitle">Add Student</h3>
+      <button class="icon-btn" data-close="studentModal">✕</button>
+    </div>
+    <form id="stuForm" autocomplete="off">
+      <div class="grid grid-2">
+        <label class="field">Full Name *
+          <input id="sfName" placeholder="Surname First Middle" required>
+        </label>
+        <label class="field">Admission Number *
+          <input id="sfAdm" placeholder="e.g. FGC/2025/0142" required>
+        </label>
+        <label class="field">Gender
+          <select id="sfGender">
+            <option value="">— Select —</option>
+            <option>Male</option><option>Female</option>
+          </select>
+        </label>
+        <label class="field">Date of Birth
+          <input id="sfDob" type="date">
+        </label>
+        <label class="field">Class *
+          <select id="sfClass" required></select>
+        </label>
+        <label class="field">Guardian Name
+          <input id="sfGuardian" placeholder="Parent / Guardian">
+        </label>
+        <label class="field">Guardian Phone
+          <input id="sfPhone" placeholder="e.g. 0803 000 0000">
+        </label>
+        <label class="field">Home Address
+          <input id="sfAddress" placeholder="Residential address">
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn" data-close="studentModal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Student</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="reportModal" class="modal" hidden>
+  <div class="modal-card wide">
+    <div class="modal-head no-print">
+      <h3 id="repModalTitle">Report Sheet</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="btnRepModalDownload">⬇ Download</button>
+        <button class="btn btn-primary" id="btnRepModalPrint">🖨 Print</button>
+        <button class="icon-btn" data-close="reportModal">✕</button>
+      </div>
+    </div>
+    <div id="reportSheet"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ============================================================
+     CONFIG
+     ============================================================ -->
+<script type="application/json" id="appConfig">
+{
+  "scoreWeights": { "ca1": 20, "ca2": 20, "exam": 60 },
+  "gradingScale": [
+    { "min": 75, "max": 100, "grade": "A1", "remark": "Excellent" },
+    { "min": 70, "max": 74,  "grade": "B2", "remark": "Very Good" },
+    { "min": 65, "max": 69,  "grade": "B3", "remark": "Good" },
+    { "min": 60, "max": 64,  "grade": "C4", "remark": "Credit" },
+    { "min": 55, "max": 59,  "grade": "C5", "remark": "Credit" },
+    { "min": 50, "max": 54,  "grade": "C6", "remark": "Credit" },
+    { "min": 45, "max": 49,  "grade": "D7", "remark": "Pass" },
+    { "min": 40, "max": 44,  "grade": "E8", "remark": "Pass" },
+    { "min": 0,  "max": 39,  "grade": "F9", "remark": "Fail" }
+  ],
+  "juniorSubjects": [
+    "English Studies", "Mathematics", "Basic Science", "Basic Technology",
+    "Social Studies", "Civic Education", "Business Studies", "Home Economics",
+    "Agricultural Science", "Computer Studies", "Christian Religious Studies",
+    "Islamic Religious Studies", "Yoruba", "Igbo", "Hausa", "French",
+    "Physical and Health Education", "Cultural and Creative Arts", "Music"
+  ],
+  "seniorSubjects": [
+    "English Language", "Mathematics", "Civic Education", "Biology",
+    "Chemistry", "Physics", "Economics", "Government", "Literature-in-English",
+    "Geography", "Agricultural Science", "Further Mathematics", "Commerce",
+    "Financial Accounting", "Christian Religious Studies",
+    "Islamic Religious Studies", "Computer Studies", "Yoruba", "Igbo", "Hausa",
+    "Technical Drawing", "Food and Nutrition", "Home Economics", "French",
+    "Music", "Fine Arts", "Physical and Health Education"
+  ]
+}
+</script>
+
+<script>
+/* =========================================================
+   0. CONFIG + HELPERS
+   ========================================================= */
+const CONFIG = JSON.parse(document.getElementById('appConfig').textContent);
+const W = CONFIG.scoreWeights;
+
+/* Token is the ONLY thing kept in the browser — all data lives on the server. */
+const TOKEN_STORE = 'ngsx_token_v4';
+const KEY_TOTAL   = 520;
+
+const $   = id => document.getElementById(id);
+const num = v  => { const n = Number(v); return isNaN(n) ? 0 : n; };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g,
+  c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+function normalizeKey(v) {
+  let s = String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!s) return '';
+  if (s.startsWith('EDU')) s = s.slice(3);
+  if (s.length !== 8) return String(v || '').toUpperCase().trim();
+  return 'EDU-' + s.slice(0, 4) + '-' + s.slice(4);
+}
+
+/* Class list: JSS 1 – SS 3, arms A–C */
+const CLASSES = [];
+['JSS 1','JSS 2','JSS 3','SS 1','SS 2','SS 3'].forEach(lvl => {
+  ['A','B','C'].forEach(arm => CLASSES.push(lvl + ' ' + arm));
+});
+
+function defaultSubjectsFor(className) {
+  return /^JSS/.test(className || '') ? CONFIG.juniorSubjects.slice() : CONFIG.seniorSubjects.slice();
+}
+function gradeOf(score) {
+  const s = num(score);
+  return CONFIG.gradingScale.find(g => s >= g.min)
+      || CONFIG.gradingScale[CONFIG.gradingScale.length - 1];
+}
+function gradeClass(g) {
+  const c = g[0];
+  if (c === 'A' || c === 'B') return 'good';
+  if (c === 'C') return 'credit';
+  if (c === 'F') return 'fail';
+  return 'pass';
+}
+function ordinal(n) {
+  const s = ['th','st','nd','rd'], v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try { return new Date(iso).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }); }
+  catch (e) { return iso; }
+}
+
+/* =========================================================
+   1. API CLIENT  (all persistence happens on the server)
+   ========================================================= */
+let authToken = '';
+try { authToken = localStorage.getItem(TOKEN_STORE) || ''; } catch (e) {}
+
+function setToken(t) {
+  authToken = t || '';
+  try { t ? localStorage.setItem(TOKEN_STORE, t) : localStorage.removeItem(TOKEN_STORE); }
+  catch (e) {}
+}
+
+async function api(pathname, opts) {
+  opts = opts || {};
+  const method = opts.method || 'GET';
+  const headers = {};
+  if (opts.body !== undefined) headers['Content-Type'] = 'application/json';
+  if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+
+  let res;
+  try {
+    res = await fetch(pathname, {
+      method: method,
+      headers: headers,
+      body: opts.body === undefined ? undefined : JSON.stringify(opts.body)
+    });
+  } catch (e) {
+    const err = new Error('Cannot reach the server. Make sure it is running.');
+    err.status = 0;
+    throw err;
+  }
+
+  let payload = null;
+  try { payload = await res.json(); } catch (e) {}
+
+  if (!res.ok) {
+    if (res.status === 401) forceLogout('Session expired. Please log in again.');
+    const err = new Error((payload && payload.error) || ('Request failed (' + res.status + ')'));
+    err.status = res.status;
+    throw err;
+  }
+  return payload;
+}
+
+function busy(btn, on, label) {
+  if (!btn) return;
+  if (on) {
+    if (!btn.dataset._orig) btn.dataset._orig = btn.textContent;
+    btn.textContent = label || 'Please wait…';
+    btn.disabled = true;
+  } else {
+    if (btn.dataset._orig) btn.textContent = btn.dataset._orig;
+    btn.disabled = false;
+  }
+}
+
+/* =========================================================
+   2. GLOBAL STATE
+   ========================================================= */
+let session   = null;      // { type:'admin' } | { type:'school', schoolId }
+let data      = null;      // active school's data (mirror of the server copy)
+let keyCache  = [];        // admin: subscription keys
+let schoolCache = [];      // admin: registered schools
+let editingStudentId = null;
+let activeReportHTML = '';
+let activeReportTitle = '';
+let admKeyQuery  = '';
+let admKeyStatus = '';
+let saveTimer = null;
+
+/* =========================================================
+   3. PERSISTENCE (debounced push to the server)
+   ========================================================= */
+function saveData() {
+  if (!data || !session || session.type !== 'school') return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(pushData, 350);
+}
+async function pushData() {
+  saveTimer = null;
+  if (!data || !session || session.type !== 'school') return;
+  try {
+    await api('/api/school/data', { method: 'PUT', body: data });
+  } catch (err) {
+    if (err.status !== 401 && err.status !== 0) toast('Could not save: ' + err.message);
+  }
+}
+function saveDataNow() {
+  clearTimeout(saveTimer);
+  saveTimer = null;
+  return pushData();
+}
+
+/* Best-effort flush when the tab closes */
+window.addEventListener('beforeunload', () => {
+  if (!saveTimer || !data || !authToken) return;
+  try {
+    const url = '/api/school/data?token=' + encodeURIComponent(authToken);
+    navigator.sendBeacon(url, new Blob([JSON.stringify(data)], { type: 'application/json' }));
+  } catch (e) {}
+});
+
+/* =========================================================
+   4. GATE
+   ========================================================= */
+function setGateMsg(id, text, kind) {
+  const el = $(id);
+  el.textContent = text || '';
+  el.className = 'gate-msg' + (kind ? ' ' + kind : '');
+}
+function showGateTab(which) {
+  ['reg','log','adm'].forEach(t => {
+    $('tab' + t[0].toUpperCase() + t.slice(1)).classList.toggle('on', t === which);
+    $('form' + t[0].toUpperCase() + t.slice(1)).hidden = t !== which;
+  });
+  setGateMsg('regMsg', ''); setGateMsg('logMsg', ''); setGateMsg('admMsg', '');
+}
+function showGate() {
+  $('gate').hidden = false;
+  $('adminPanel').hidden = true;
+  $('app').hidden = true;
+  $('formReg').reset(); $('formLog').reset(); $('formAdm').reset();
+  showGateTab('reg');
+  session = null;
+  data = null;
+}
+function forceLogout(msg) {
+  if (!authToken && !session) return;
+  setToken('');
+  showGate();
+  if (msg) toast(msg);
+}
+function showAdminPanel() {
+  $('gate').hidden = true;
+  $('app').hidden = true;
+  $('adminPanel').hidden = false;
+  return refreshAdmin();
+}
+function showApp() {
+  $('gate').hidden = true;
+  $('adminPanel').hidden = true;
+  $('app').hidden = false;
+  renderApp();
+}
+
+/* ---- Admin login ---- */
+$('formAdm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  const pw = $('admPw').value;
+  if (!pw) { setGateMsg('admMsg', 'Enter the administrator password.', 'err'); return; }
+  busy(btn, true, 'Checking…');
+  try {
+    const out = await api('/api/admin/login', { method: 'POST', body: { password: pw } });
+    setToken(out.token);
+    session = { type: 'admin' };
+    await showAdminPanel();
+  } catch (err) {
+    setGateMsg('admMsg', err.message, 'err');
+    $('admPw').select();
+  } finally {
+    busy(btn, false);
+  }
+});
+
+/* ---- School registration ---- */
+$('formReg').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  const name = $('regSchool').value.trim();
+  const code = normalizeKey($('regKey').value);
+
+  if (!name) { setGateMsg('regMsg', 'Please enter your school name.', 'err'); $('regSchool').focus(); return; }
+  if (!code) { setGateMsg('regMsg', 'Please enter your access key.', 'err'); $('regKey').focus(); return; }
+
+  busy(btn, true, 'Registering…');
+  try {
+    const out = await api('/api/auth/register', {
+      method: 'POST',
+      body: { name: name, address: $('regAddress').value.trim(),
+              motto: $('regMotto').value.trim(), key: code }
+    });
+    setToken(out.token);
+    session = { type: 'school', schoolId: out.school.id };
+    data = out.data;
+    showApp();
+    toast('School registered. Welcome!');
+  } catch (err) {
+    setGateMsg('regMsg', err.message, 'err');
+  } finally {
+    busy(btn, false);
+  }
+});
+
+/* ---- School login ---- */
+$('formLog').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  const code = normalizeKey($('logKey').value);
+  if (!code) { setGateMsg('logMsg', 'Enter your access key.', 'err'); return; }
+
+  busy(btn, true, 'Signing in…');
+  try {
+    const out = await api('/api/auth/login', { method: 'POST', body: { key: code } });
+    setToken(out.token);
+    session = { type: 'school', schoolId: out.school.id };
+    data = out.data;
+    showApp();
+    toast('Welcome back, ' + out.school.name + '.');
+  } catch (err) {
+    setGateMsg('logMsg', err.message, 'err');
+    $('logKey').select();
+  } finally {
+    busy(btn, false);
+  }
+});
+
+/* auto-format key inputs on blur */
+['regKey','logKey'].forEach(id => {
+  $(id).addEventListener('blur', e => {
+    const n = normalizeKey(e.target.value);
+    if (n) e.target.value = n;
+  });
+});
+
+/* tab switching */
+$('tabReg').addEventListener('click', () => showGateTab('reg'));
+$('tabLog').addEventListener('click', () => showGateTab('log'));
+$('tabAdm').addEventListener('click', () => showGateTab('adm'));
+
+/* =========================================================
+   5. ADMIN PANEL
+   ========================================================= */
+async function refreshAdmin() {
+  try {
+    const results = await Promise.all([
+      api('/api/admin/keys'),
+      api('/api/admin/schools')
+    ]);
+    keyCache    = results[0].keys || [];
+    schoolCache = results[1].schools || [];
+
+    const stats = results[0].stats || { total:0, available:0, issued:0, used:0 };
+    $('statTotal').textContent  = stats.total;
+    $('statAvail').textContent  = stats.available;
+    $('statIssued').textContent = stats.issued;
+    $('statUsed').textContent   = stats.used;
+
+    $('admGenKeys').textContent = keyCache.length
+      ? 'Regenerate ' + keyCache.length + ' Keys'
+      : 'Generate ' + KEY_TOTAL + ' Keys';
+
+    renderKeyTable();
+    renderSchoolTable();
+  } catch (err) {
+    if (err.status !== 401 && err.status !== 0) toast(err.message);
+    if (err.status === 0) toast(err.message);
+  }
+}
+
+function renderKeyTable() {
+  const tb = $('admKeyBody');
+  if (!keyCache.length) {
+    tb.innerHTML = `<tr><td colspan="6" class="empty">No keys generated yet. Click "Generate ${KEY_TOTAL} Keys".</td></tr>`;
+    $('admKeyShown').textContent = '';
+    return;
+  }
+
+  const q = admKeyQuery.trim().toLowerCase();
+  const rows = keyCache.map((k, i) => ({ k: k, i: i })).filter(item => {
+    const k = item.k;
+    if (admKeyStatus && k.status !== admKeyStatus) return false;
+    if (!q) return true;
+    const school = k.schoolId ? schoolCache.find(s => s.id === k.schoolId) : null;
+    return (
+      k.code.toLowerCase().includes(q) ||
+      (k.issuedTo || '').toLowerCase().includes(q) ||
+      (school ? school.name.toLowerCase().includes(q) : false)
+    );
+  });
+
+  $('admKeyShown').textContent = `Showing ${rows.length} of ${keyCache.length} keys`;
+
+  if (!rows.length) {
+    tb.innerHTML = `<tr><td colspan="6" class="empty">No keys match the current filter.</td></tr>`;
+    return;
+  }
+
+  tb.innerHTML = rows.map(item => {
+    const k = item.k;
+    const school = k.schoolId ? schoolCache.find(s => s.id === k.schoolId) : null;
+    const statusLabel = k.status.charAt(0).toUpperCase() + k.status.slice(1);
+    const actions = [];
+    if (k.status === 'available') actions.push(`<button class="btn btn-sm" data-issue="${esc(k.code)}">Issue</button>`);
+    if (k.status === 'issued')    actions.push(`<button class="btn btn-sm" data-unissue="${esc(k.code)}">Un-issue</button>`);
+    actions.push(`<button class="btn btn-sm" data-copy="${esc(k.code)}">Copy</button>`);
+    return `<tr>
+      <td class="num">${item.i + 1}</td>
+      <td><code style="font-size:12.5px;font-weight:700">${esc(k.code)}</code></td>
+      <td class="num"><span class="badge ${esc(k.status)}">${statusLabel}</span></td>
+      <td>${esc(k.issuedTo || '—')}</td>
+      <td>${school ? esc(school.name) : '—'}</td>
+      <td class="num"><div class="actions-cell">${actions.join('')}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderSchoolTable() {
+  const sb = $('admSchoolBody');
+  $('admSchoolCount').textContent = `(${schoolCache.length})`;
+  if (!schoolCache.length) {
+    sb.innerHTML = `<tr><td colspan="7" class="empty">No schools registered yet.</td></tr>`;
+    return;
+  }
+  sb.innerHTML = schoolCache.map((s, i) => `<tr>
+      <td class="num">${i + 1}</td>
+      <td><b>${esc(s.name)}</b></td>
+      <td>${esc(s.address || '—')}</td>
+      <td>${esc(s.motto || '—')}</td>
+      <td class="num">${s.studentCount || 0}</td>
+      <td>${fmtDate(s.createdAt)}</td>
+      <td class="num">
+        <div class="actions-cell">
+          <button class="icon-btn danger" data-delschool="${esc(s.id)}" title="Delete school">✕</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+/* key filters (client-side on the cached list) */
+$('admKeySearch').addEventListener('input', e => {
+  admKeyQuery = e.target.value;
+  renderKeyTable();
+});
+$('admKeyStatus').addEventListener('change', e => {
+  admKeyStatus = e.target.value;
+  renderKeyTable();
+});
+$('admKeyClear').addEventListener('click', () => {
+  admKeyQuery = ''; admKeyStatus = '';
+  $('admKeySearch').value = '';
+  $('admKeyStatus').value = '';
+  renderKeyTable();
+});
+
+/* admin actions */
+$('admGenKeys').addEventListener('click', async () => {
+  const btn = $('admGenKeys');
+  if (keyCache.length && !confirm(
+    'This will replace all ' + keyCache.length + ' existing keys and unregister any schools that used them.\n\n' +
+    KEY_TOTAL + ' new keys will be created. Continue?'
+  )) return;
+
+  busy(btn, true, 'Generating…');
+  try {
+    await api('/api/admin/keys/generate', { method: 'POST' });
+    admKeyQuery = ''; admKeyStatus = '';
+    $('admKeySearch').value = '';
+    $('admKeyStatus').value = '';
+    await refreshAdmin();
+    toast(KEY_TOTAL + ' subscription keys generated and saved.');
+  } catch (err) {
+    if (err.status !== 401) alert(err.message);
+  } finally {
+    busy(btn, false);
+  }
+});
+
+$('admDlTxt').addEventListener('click', () => {
+  if (!keyCache.length) { toast('Generate keys first.'); return; }
+  const lines = [
+    'SCHOOL RESULT MANAGEMENT SYSTEM — SUBSCRIPTION KEYS',
+    'Generated: ' + new Date().toLocaleString(),
+    'Total: ' + keyCache.length,
+    '',
+    ...keyCache.map((k, i) => {
+      const school = k.schoolId ? schoolCache.find(s => s.id === k.schoolId) : null;
+      const tag = k.status === 'used' ? 'USED' : k.status === 'issued' ? 'ISSUED' : 'AVAILABLE';
+      const extra = school ? `  → ${school.name}` : (k.issuedTo ? `  → reserved for ${k.issuedTo}` : '');
+      return `${String(i + 1).padStart(3,'0')}.  ${k.code}   [${tag}]${extra}`;
+    })
+  ];
+  download('school-subscription-keys.txt', lines.join('\n'), 'text/plain');
+  toast('Key list downloaded.');
+});
+
+$('admDlCsv').addEventListener('click', () => {
+  if (!keyCache.length) { toast('Generate keys first.'); return; }
+  const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+  const lines = [['#','Code','Status','Issued To','Registered School','Registered At'].join(',')];
+  keyCache.forEach((k, i) => {
+    const s = k.schoolId ? schoolCache.find(x => x.id === k.schoolId) : null;
+    lines.push([
+      i + 1, q(k.code), k.status, q(k.issuedTo || ''),
+      q(s ? s.name : ''), q(k.usedAt ? fmtDate(k.usedAt) : '')
+    ].join(','));
+  });
+  download('school-subscription-keys.csv', lines.join(','), 'text/csv');
+  toast('CSV downloaded.');
+});
+
+$('admKeyBody').addEventListener('click', async e => {
+  const issue   = e.target.dataset.issue;
+  const unissue = e.target.dataset.unissue;
+  const copy    = e.target.dataset.copy;
+
+  if (copy) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(copy)
+        .then(() => toast('Copied ' + copy))
+        .catch(() => toast(copy));
+    } else {
+      toast(copy);
+    }
+    return;
+  }
+
+  try {
+    if (issue) {
+      const to = prompt('Reserve this key for which school?\n(Leave blank to keep it open to any school)', '');
+      if (to === null) return;
+      await api('/api/admin/keys/issue', { method: 'POST', body: { code: issue, issuedTo: to.trim() } });
+      await refreshAdmin();
+      toast('Key issued' + (to.trim() ? ' to ' + to.trim() : '.'));
+    }
+    if (unissue) {
+      await api('/api/admin/keys/unissue', { method: 'POST', body: { code: unissue } });
+      await refreshAdmin();
+      toast('Key returned to available pool.');
+    }
+  } catch (err) {
+    if (err.status !== 401) alert(err.message);
+  }
+});
+
+$('admSchoolBody').addEventListener('click', async e => {
+  const id = e.target.dataset.delschool;
+  if (!id) return;
+  if (!confirm('Delete this school and all its student records? This cannot be undone.')) return;
+  try {
+    await api('/api/admin/schools/' + encodeURIComponent(id), { method: 'DELETE' });
+    await refreshAdmin();
+    toast('School deleted.');
+  } catch (err) {
+    if (err.status !== 401) alert(err.message);
+  }
+});
+
+$('admChangePw').addEventListener('click', async () => {
+  const cur = prompt('Enter current administrator password:');
+  if (cur === null) return;
+  if (!cur) { alert('Current password is required.'); return; }
+  const next = prompt('Enter new administrator password (min 6 characters):');
+  if (next === null) return;
+  if (next.length < 6) { alert('New password must be at least 6 characters.'); return; }
+  try {
+    await api('/api/admin/password', {
+      method: 'POST',
+      body: { currentPassword: cur, newPassword: next }
+    });
+    toast('Administrator password saved on the server.');
+  } catch (err) {
+    if (err.status !== 401) alert(err.message);
+  }
+});
+
+$('admLogout').addEventListener('click', async () => {
+  if (!confirm('Log out of the administrator console?')) return;
+  try { await api('/api/auth/logout', { method: 'POST' }); } catch (e) {}
+  setToken('');
+  showGate();
+});
+
+/* =========================================================
+   6. SCHOOL APP
+   ========================================================= */
+function saveDataRaw() {} // legacy no-op guard
+
+function fillClassSelect(sel, includeAll) {
+  sel.innerHTML = includeAll
+    ? '<option value="">All Classes</option>'
+    : '<option value="">— Select class —</option>';
+  CLASSES.forEach(c => sel.add(new Option(c, c)));
+}
+
+function renderApp() {
+  if (!data) return;
+
+  $('appSchoolName').textContent = data.school.name || 'School';
+  $('appSchoolMeta').textContent = (data.school.address || 'Result Management System');
+  $('sessionBadge').textContent  = (data.meta.term || 'Term') + ' • ' + (data.meta.session || 'Session');
+
+  fillClassSelect($('stuFilterClass'), true);
+  fillClassSelect($('resClass'), false);
+  fillClassSelect($('repClass'), false);
+  fillClassSelect($('broClass'), false);
+  fillClassSelect($('sfClass'), false);
+
+  renderStudentTable();
+  renderSettingsTab();
+}
+
+/* ---------- Tab nav ---------- */
+document.querySelectorAll('.appnav button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.appnav button').forEach(x => x.classList.toggle('on', x === b));
+    ['students','results','reports','settings'].forEach(t => {
+      $('tab-' + t).hidden = t !== b.dataset.tab;
+    });
+  });
+});
+
+/* =========================================================
+   7. STUDENT CRUD
+   ========================================================= */
+function renderStudentTable() {
+  const fClass = $('stuFilterClass').value;
+  const q      = $('stuSearch').value.trim().toLowerCase();
+  let list = data.students.slice();
+  if (fClass) list = list.filter(s => s.className === fClass);
+  if (q) list = list.filter(s =>
+    (s.name || '').toLowerCase().includes(q) ||
+    (s.admissionNo || '').toLowerCase().includes(q));
+
+  list.sort((a,b) => {
+    if (a.className !== b.className) return (a.className || '').localeCompare(b.className || '');
+    return (a.name || '').localeCompare(b.name || '');
+  });
+
+  $('stuCount').textContent = `(${list.length} of ${data.students.length})`;
+
+  const tb = $('stuBody');
+  if (!list.length) {
+    tb.innerHTML = `<tr><td colspan="8" class="empty">
+      No students found. Click "+ Add Student" to create a record.
+    </td></tr>`;
+    return;
+  }
+  tb.innerHTML = list.map((s, i) => {
+    const subjectCount = countSubjects(s);
+    return `<tr>
+      <td class="num">${i + 1}</td>
+      <td><b>${esc(s.admissionNo || '—')}</b></td>
+      <td>${esc(s.name || '—')}</td>
+      <td class="num">${esc(s.gender || '—')}</td>
+      <td class="num">${esc(s.className || '—')}</td>
+      <td>${esc(s.guardianPhone || '—')}</td>
+      <td class="num">${subjectCount}</td>
+      <td class="num">
+        <div class="actions-cell">
+          <button class="icon-btn" data-rep="${esc(s.id)}" title="Preview report">👁</button>
+          <button class="icon-btn" data-edit="${esc(s.id)}" title="Edit">✎</button>
+          <button class="icon-btn danger" data-del="${esc(s.id)}" title="Delete">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function countSubjects(st) {
+  const key = scoreKey();
+  const arr = (st.scores && st.scores[key]) || [];
+  return arr.filter(r => String(r.subject || '').trim() !== '').length;
+}
+function scoreKey(term, sessionStr) {
+  return (sessionStr || data.meta.session || '') + '|' + (term || data.meta.term || '');
+}
+
+/* filters */
+$('stuFilterClass').addEventListener('change', renderStudentTable);
+$('stuSearch').addEventListener('input', renderStudentTable);
+
+/* open add modal */
+$('btnAddStudent').addEventListener('click', () => openStudentModal(null));
+
+/* open edit / preview / delete */
+$('stuBody').addEventListener('click', e => {
+  const editId = e.target.dataset.edit;
+  const delId  = e.target.dataset.del;
+  const repId  = e.target.dataset.rep;
+
+  if (editId) openStudentModal(editId);
+  if (delId) {
+    const st = data.students.find(s => s.id === delId);
+    if (!st) return;
+    if (!confirm(`Delete ${st.name}?\nAll scores for this student will be lost.`)) return;
+    data.students = data.students.filter(s => s.id !== delId);
+    saveData();
+    renderStudentTable();
+    toast('Student deleted.');
+  }
+  if (repId) {
+    const st = data.students.find(s => s.id === repId);
+    if (st) previewReport(st);
+  }
+});
+
+/* open modal */
+function openStudentModal(id) {
+  editingStudentId = id;
+  $('stuModalTitle').textContent = id ? 'Edit Student' : 'Add Student';
+  const f = $('stuForm');
+  f.reset();
+  if (id) {
+    const s = data.students.find(x => x.id === id);
+    if (!s) return;
+    $('sfName').value = s.name || '';
+    $('sfAdm').value = s.admissionNo || '';
+    $('sfGender').value = s.gender || '';
+    $('sfDob').value = s.dob || '';
+    $('sfClass').value = s.className || '';
+    $('sfGuardian').value = s.guardianName || '';
+    $('sfPhone').value = s.guardianPhone || '';
+    $('sfAddress').value = s.address || '';
+  } else {
+    $('sfClass').value = $('stuFilterClass').value || CLASSES[0];
+  }
+  $('studentModal').hidden = false;
+}
+
+/* close handlers */
+document.querySelectorAll('[data-close]').forEach(b => {
+  b.addEventListener('click', () => {
+    $(b.dataset.close).hidden = true;
+  });
+});
+$('studentModal').addEventListener('click', e => {
+  if (e.target === $('studentModal')) $('studentModal').hidden = true;
+});
+
+/* save student */
+$('stuForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('sfName').value.trim();
+  const adm  = $('sfAdm').value.trim();
+  const cls  = $('sfClass').value;
+  if (!name) { alert('Please enter the student name.'); return; }
+  if (!adm)  { alert('Please enter the admission number.'); return; }
+  if (!cls)  { alert('Please select a class.'); return; }
+
+  if (editingStudentId) {
+    const s = data.students.find(x => x.id === editingStudentId);
+    if (!s) return;
+    s.name = name; s.admissionNo = adm;
+    s.gender = $('sfGender').value;
+    s.dob = $('sfDob').value;
+    s.className = cls;
+    s.guardianName = $('sfGuardian').value.trim();
+    s.guardianPhone = $('sfPhone').value.trim();
+    s.address = $('sfAddress').value.trim();
+    toast('Student updated.');
+  } else {
+    data.students.push({
+      id: 'stu_' + uid(),
+      name: name, admissionNo: adm,
+      gender: $('sfGender').value,
+      dob: $('sfDob').value,
+      className: cls,
+      guardianName: $('sfGuardian').value.trim(),
+      guardianPhone: $('sfPhone').value.trim(),
+      address: $('sfAddress').value.trim(),
+      scores: {},
+      createdAt: new Date().toISOString()
+    });
+    toast('Student added.');
+  }
+  saveData();
+  $('studentModal').hidden = true;
+  renderStudentTable();
+});
+
+/* =========================================================
+   8. RESULT ENTRY
+   ========================================================= */
+function refreshStudentDropdowns() {
+  const rc  = $('resClass').value;
+  const rep = $('repClass').value;
+  populateStudents($('resStudent'), rc);
+  populateStudents($('repStudent'), rep);
+}
+function populateStudents(sel, className) {
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Select student —</option>';
+  if (!className) return;
+  data.students
+    .filter(s => s.className === className)
+    .sort((a,b) => (a.name || '').localeCompare(b.name || ''))
+    .forEach(s => sel.add(new Option(`${s.name}  (${s.admissionNo})`, s.id)));
+  if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+}
+
+$('resClass').addEventListener('change', () => {
+  populateStudents($('resStudent'), $('resClass').value);
+  $('resEntryCard').hidden = true;
+});
+$('repClass').addEventListener('change', () => populateStudents($('repStudent'), $('repClass').value));
+$('broClass').addEventListener('change', () => {});
+
+$('resStudent').addEventListener('change', () => {
+  const id = $('resStudent').value;
+  if (!id) { $('resEntryCard').hidden = true; return; }
+  const st = data.students.find(s => s.id === id);
+  if (!st) return;
+  $('resEntryCard').hidden = false;
+  $('resWhoLabel').textContent = st.name + ' — ' + st.className;
+  $('resTermLabel').textContent = 'Entering scores for ' + data.meta.term + ' • ' + data.meta.session;
+  loadStudentScores(st);
+  $('btnResSave').disabled = false;
+});
+
+function loadStudentScores(st) {
+  const key = scoreKey();
+  if (!st.scores) st.scores = {};
+  if (!st.scores[key] || !st.scores[key].length) {
+    st.scores[key] = defaultSubjectsFor(st.className).map(s => ({
+      subject: s, ca1: '', ca2: '', exam: ''
+    }));
+    saveData();
+  }
+  renderResultRows(st.scores[key]);
+}
+
+function renderResultRows(rows) {
+  const tb = $('resBody');
+  tb.innerHTML = rows.map((r, i) => {
+    const t = num(r.ca1) + num(r.ca2) + num(r.exam);
+    const g = gradeOf(t);
+    return `<tr>
+      <td class="num">${i + 1}</td>
+      <td>
+        <select data-i="${i}" data-k="subject">${
+          subjectOptionsFor(r.subject)
+        }</select>
+      </td>
+      <td class="num"><input type="number" min="0" max="${W.ca1}" data-i="${i}" data-k="ca1" value="${esc(r.ca1)}"></td>
+      <td class="num"><input type="number" min="0" max="${W.ca2}" data-i="${i}" data-k="ca2" value="${esc(r.ca2)}"></td>
+      <td class="num"><input type="number" min="0" max="${W.exam}" data-i="${i}" data-k="exam" value="${esc(r.exam)}"></td>
+      <td class="num total">${t}</td>
+      <td class="num grade ${gradeClass(g.grade)}">${g.grade}</td>
+      <td>${g.remark}</td>
+      <td class="num"><button class="icon-btn danger" data-del="${i}" title="Remove">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+function subjectOptionsFor(selected) {
+  const st = data.students.find(s => s.id === $('resStudent').value);
+  const pool = defaultSubjectsFor(st ? st.className : '');
+  const list = pool.slice();
+  if (selected && !list.includes(selected)) list.unshift(selected);
+  return list.map(s => `<option value="${esc(s)}"${s === selected ? ' selected' : ''}>${esc(s)}</option>`).join('');
+}
+
+/* score editing */
+$('resBody').addEventListener('input', onResInput);
+$('resBody').addEventListener('change', onResInput);
+$('resBody').addEventListener('click', e => {
+  const d = e.target.dataset.del;
+  if (d === undefined) return;
+  const st = data.students.find(s => s.id === $('resStudent').value);
+  if (!st) return;
+  st.scores[scoreKey()].splice(Number(d), 1);
+  saveData();
+  renderResultRows(st.scores[scoreKey()]);
+});
+
+function onResInput(e) {
+  const el = e.target;
+  const i = el.dataset.i, k = el.dataset.k;
+  if (i === undefined || !k) return;
+  const st = data.students.find(s => s.id === $('resStudent').value);
+  if (!st) return;
+  const arr = st.scores[scoreKey()];
+  const row = arr[Number(i)];
+  if (!row) return;
+
+  if (k === 'subject') {
+    row.subject = el.value;
+  } else {
+    const max = W[k];
+    const raw = el.value.trim();
+    if (raw === '') row[k] = '';
+    else {
+      let n = Number(raw);
+      if (isNaN(n)) n = 0;
+      if (n < 0) n = 0;
+      if (n > max) { n = max; el.value = n; }
+      row[k] = n;
+    }
+  }
+  saveData();
+  updateResultRowVisual(Number(i));
+}
+function updateResultRowVisual(i) {
+  const st = data.students.find(s => s.id === $('resStudent').value);
+  if (!st) return;
+  const row = st.scores[scoreKey()][i];
+  if (!row) return;
+  const tr = $('resBody').children[i];
+  if (!tr) return;
+  const t = num(row.ca1) + num(row.ca2) + num(row.exam);
+  const g = gradeOf(t);
+  tr.querySelector('.total').textContent = t;
+  const gEl = tr.querySelector('.grade');
+  gEl.textContent = g.grade;
+  gEl.className = 'num grade ' + gradeClass(g.grade);
+  tr.querySelector('td:nth-child(8)').textContent = g.remark;
+}
+
+/* buttons */
+$('btnResAddRow').addEventListener('click', () => {
+  const st = data.students.find(s => s.id === $('resStudent').value);
+  if (!st) return;
+  const arr = st.scores[scoreKey()];
+  const used = new Set(arr.map(r => r.subject));
+  const pool = defaultSubjectsFor(st.className);
+  const next = pool.find(s => !used.has(s)) || pool[0];
+  arr.push({ subject: next, ca1: '', ca2: '', exam: '' });
+  saveData();
+  renderResultRows(arr);
+});
+$('btnResSeed').addEventListener('click', () => {
+  const st = data.students.find(s => s.id === $('resStudent').value);
+  if (!st) return;
+  if (!confirm('Reset the subject list for this term? All scores entered for this term will be cleared.')) return;
+  st.scores[scoreKey()] = defaultSubjectsFor(st.className).map(s => ({
+    subject: s, ca1: '', ca2: '', exam: ''
+  }));
+  saveData();
+  renderResultRows(st.scores[scoreKey()]);
+  toast('Subjects reset.');
+});
+$('btnResSave').addEventListener('click', async () => {
+  await saveDataNow();
+  toast('Scores saved on the server.');
+  renderStudentTable();
+});
+
+/* =========================================================
+   9. REPORT SHEETS
+   ========================================================= */
+function computeStudentTotals(st, term, sessionStr) {
+  const arr = (st.scores && st.scores[(sessionStr || data.meta.session) + '|' + (term || data.meta.term)]) || [];
+  const rows = arr.filter(r => String(r.subject || '').trim() !== '');
+  const total = rows.reduce((a, r) => a + num(r.ca1) + num(r.ca2) + num(r.exam), 0);
+  const avg = rows.length ? total / rows.length : 0;
+  return { rows: rows, total: total, avg: avg, count: rows.length };
+}
+function positionInClass(st, term, sessionStr) {
+  const list = data.students.filter(s => s.className === st.className);
+  const scored = list.map(s => ({ id: s.id, avg: computeStudentTotals(s, term, sessionStr).avg }));
+  scored.sort((a,b) => b.avg - a.avg);
+  let rank = 0, prev = null;
+  for (let i = 0; i < scored.length; i++) {
+    if (prev === null || scored[i].avg !== prev) { rank = i + 1; prev = scored[i].avg; }
+    if (scored[i].id === st.id) return { position: rank, of: scored.length };
+  }
+  return { position: 0, of: scored.length };
+}
+
+function teacherComment(avg, count) {
+  if (!count) return '—';
+  if (avg >= 75) return 'An excellent result. Keep up the outstanding work.';
+  if (avg >= 70) return 'A very good result. A little more effort will earn you the top spot.';
+  if (avg >= 65) return 'A good result. You can still do better.';
+  if (avg >= 60) return 'A fair result. More commitment is required.';
+  if (avg >= 50) return 'An average performance. You need to work harder.';
+  if (avg >= 40) return 'A weak result. Serious improvement is needed.';
+  return 'A poor result. You must take your studies seriously.';
+}
+function principalComment(avg, count) {
+  if (!count) return '—';
+  if (avg >= 75) return 'Excellent performance. Keep the flag flying.';
+  if (avg >= 65) return 'A commendable result. Sustain the tempo.';
+  if (avg >= 50) return 'A satisfactory result. There is room for improvement.';
+  if (avg >= 40) return 'A fair result. More effort is expected next term.';
+  return 'Unsatisfactory. This needs serious attention.';
+}
+
+function buildReportHTML(st) {
+  const m = data.meta, s = data.school;
+  const totals = computeStudentTotals(st);
+  const rows = totals.rows, total = totals.total, avg = totals.avg, count = totals.count;
+  const overall = gradeOf(avg);
+  const pos = positionInClass(st);
+
+  const body = rows.map((r, i) => {
+    const t = num(r.ca1) + num(r.ca2) + num(r.exam);
+    const g = gradeOf(t);
+    return `<tr>
+      <td>${i + 1}</td>
+      <td class="subj">${esc(r.subject)}</td>
+      <td>${num(r.ca1)}</td>
+      <td>${num(r.ca2)}</td>
+      <td>${num(r.exam)}</td>
+      <td><b>${t}</b></td>
+      <td>${g.grade}</td>
+      <td>${esc(g.remark)}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="sheet-head">
+      <div class="crest-lg">🎓</div>
+      <div>
+        <h2>${esc(s.name || 'School Name')}</h2>
+        <p>${esc(s.address || '')}</p>
+        ${s.motto ? `<p class="motto">Motto: ${esc(s.motto)}</p>` : ''}
+      </div>
+    </div>
+
+    <div class="sheet-title">
+      <h3>Student's Terminal Report Sheet</h3>
+      <p>${esc(m.term || '')} &middot; ${esc(m.session || '')} Academic Session</p>
+    </div>
+
+    <div class="bio">
+      <div><span>Name</span><b>${esc(st.name || '—')}</b></div>
+      <div><span>Admission No.</span><b>${esc(st.admissionNo || '—')}</b></div>
+      <div><span>Class</span><b>${esc(st.className || '—')}</b></div>
+      <div><span>Gender</span><b>${esc(st.gender || '—')}</b></div>
+      <div><span>Position</span><b>${pos.position ? ordinal(pos.position) + ' of ' + pos.of : '—'}</b></div>
+      <div><span>No. of Subjects</span><b>${count}</b></div>
+      <div><span>Vacation</span><b>${esc(m.vacation || '—')}</b></div>
+      <div><span>Next Term Begins</span><b>${esc(m.resumption || '—')}</b></div>
+    </div>
+
+    <table class="sheet-table">
+      <thead>
+        <tr>
+          <th style="width:38px">S/N</th>
+          <th>Subject</th>
+          <th style="width:64px">CA 1<br>(${W.ca1})</th>
+          <th style="width:64px">CA 2<br>(${W.ca2})</th>
+          <th style="width:64px">Exam<br>(${W.exam})</th>
+          <th style="width:64px">Total<br>(100)</th>
+          <th style="width:58px">Grade</th>
+          <th style="width:90px">Remark</th>
+        </tr>
+      </thead>
+      <tbody>${body || '<tr><td colspan="8" style="padding:18px">No subjects entered for this term.</td></tr>'}</tbody>
+    </table>
+
+    <div class="summary">
+      <div class="box"><span>Subjects</span><b>${count}</b></div>
+      <div class="box"><span>Total Score</span><b>${total}</b></div>
+      <div class="box"><span>Average</span><b>${avg.toFixed(2)}%</b></div>
+      <div class="box"><span>Overall Grade</span><b>${count ? overall.grade : '—'}</b></div>
+    </div>
+
+    <div class="key">
+      ${CONFIG.gradingScale.map(g =>
+        `<span><b>${g.grade}</b> ${g.min}–${g.max} · ${esc(g.remark)}</span>`).join('')}
+    </div>
+
+    <div class="comments">
+      <div><span>Class Teacher's Comment</span><em>${teacherComment(avg, count)}</em></div>
+      <div><span>Principal's Comment</span><em>${principalComment(avg, count)}</em></div>
+    </div>
+
+    <div class="signatures">
+      <div>Class Teacher's Signature</div>
+      <div>Principal's Signature &amp; Stamp</div>
+    </div>
+  `;
+}
+
+function buildBroadsheetHTML(className) {
+  const list = data.students.filter(s => s.className === className);
+  if (!list.length) {
+    return `<div class="sheet"><p style="text-align:center;color:#8494a8;padding:30px">
+      No students in ${esc(className)} yet.</p></div>`;
+  }
+  const scored = list.map(s => {
+    const t = computeStudentTotals(s);
+    const g = gradeOf(t.avg);
+    return { s: s, t: t, g: g };
+  });
+  scored.sort((a,b) => b.t.avg - a.t.avg);
+
+  let rank = 0, prev = null;
+  const rankMap = {};
+  scored.forEach((item, i) => {
+    if (prev === null || item.t.avg !== prev) { rank = i + 1; prev = item.t.avg; }
+    rankMap[item.s.id] = rank;
+  });
+
+  const body = scored.map((item, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td class="subj">${esc(item.s.name)}</td>
+      <td>${esc(item.s.admissionNo || '—')}</td>
+      <td>${item.t.count}</td>
+      <td>${item.t.total}</td>
+      <td><b>${item.t.avg.toFixed(2)}</b></td>
+      <td>${item.g.grade}</td>
+      <td>${rankMap[item.s.id]}</td>
+    </tr>`).join('');
+
+  return `
+    <div class="sheet">
+      <div class="sheet-head">
+        <div class="crest-lg">🎓</div>
+        <div>
+          <h2>${esc(data.school.name || 'School Name')}</h2>
+          <p>${esc(data.school.address || '')}</p>
+        </div>
+      </div>
+      <div class="sheet-title">
+        <h3>Class Broadsheet</h3>
+        <p>${esc(className)} &middot; ${esc(data.meta.term)} &middot; ${esc(data.meta.session)}</p>
+      </div>
+      <table class="sheet-table">
+        <thead>
+          <tr>
+            <th style="width:38px">S/N</th>
+            <th>Student Name</th>
+            <th style="width:110px">Adm. No.</th>
+            <th style="width:60px">Subj.</th>
+            <th style="width:70px">Total</th>
+            <th style="width:80px">Average</th>
+            <th style="width:60px">Grade</th>
+            <th style="width:70px">Position</th>
+          </tr>
+        </thead>
+        <tbody>${body}</tbody>
+      </table>
+      <div class="signatures">
+        <div>Class Teacher's Signature</div>
+        <div>Principal's Signature &amp; Stamp</div>
+      </div>
+    </div>`;
+}
+
+/* ---------- Standalone (downloadable) document ---------- */
+const SHEET_DOC_CSS = `
+  @page{size:A4;margin:10mm}
+  *,*::before,*::after{box-sizing:border-box}
+  body{
+    margin:0;padding:18px;background:#fff;color:#1b2430;
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:13px;line-height:1.45;
+  }
+  .sheet{background:#fff;border:1px solid #d8e0ea;border-radius:6px;padding:26px 30px;max-width:900px;margin:0 auto}
+  .sheet-head{display:flex;gap:14px;align-items:center;border-bottom:3px double #0b6b3a;padding-bottom:12px}
+  .sheet-head .crest-lg{font-size:42px;line-height:1}
+  .sheet-head h2{margin:0;font-size:20px;color:#0b6b3a;text-transform:uppercase;letter-spacing:.6px}
+  .sheet-head p{margin:2px 0 0;font-size:12.5px;color:#5a6b7f}
+  .sheet-head .motto{font-style:italic;color:#0b6b3a}
+  .sheet-title{text-align:center;margin:16px 0 14px}
+  .sheet-title h3{margin:0;font-size:14px;letter-spacing:2px;text-transform:uppercase}
+  .sheet-title p{margin:4px 0 0;font-size:12.5px;color:#5a6b7f}
+  .bio{display:grid;grid-template-columns:1fr 1fr;gap:4px 26px;font-size:13px;background:#f7fafc;
+       border:1px solid #e6ebf2;border-radius:8px;padding:12px 16px;margin-bottom:14px}
+  .bio div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dotted #d8e0ea;padding:3px 0}
+  .bio span{color:#5a6b7f}
+  .sheet-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px}
+  .sheet-table th{background:#0b6b3a;color:#fff;padding:7px 5px;font-size:10px;text-transform:uppercase;
+                  letter-spacing:.4px;border:1px solid #0b6b3a;line-height:1.3}
+  .sheet-table td{border:1px solid #dbe3ec;padding:5px;text-align:center}
+  .sheet-table td.subj{text-align:left;font-weight:600}
+  .sheet-table tbody tr:nth-child(even){background:#f8fafc}
+  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+  .summary .box{border:1px solid #dbe3ec;border-radius:8px;padding:8px 6px;text-align:center;background:#f8fafc}
+  .summary .box span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#5a6b7f;font-weight:700}
+  .summary .box b{font-size:17px;color:#0b6b3a}
+  .key{display:flex;flex-wrap:wrap;gap:6px;font-size:11px;margin-bottom:16px}
+  .key span{border:1px solid #dbe3ec;border-radius:20px;padding:3px 9px;background:#f8fafc;color:#5a6b7f}
+  .key b{color:#0b6b3a}
+  .comments{display:grid;gap:8px;font-size:12.5px;margin-bottom:6px}
+  .comments div{display:flex;gap:10px;border-bottom:1px dotted #d8e0ea;padding-bottom:6px}
+  .comments span{font-weight:700;color:#5a6b7f;min-width:170px;flex-shrink:0}
+  .comments em{font-style:normal}
+  .signatures{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:30px;font-size:11.5px;color:#5a6b7f}
+  .signatures div{border-top:1px solid #1b2430;padding-top:5px;text-align:center}
+  .doc-tools{max-width:900px;margin:0 auto 14px;display:flex;justify-content:flex-end;gap:8px}
+  .doc-tools button{
+    border:1px solid #cfd8e3;background:#fff;color:#1b2430;padding:8px 14px;border-radius:8px;
+    font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;
+  }
+  .doc-tools button:hover{background:#f1f5f9}
+  @media print{
+    body{padding:0}
+    .doc-tools{display:none !important}
+    .sheet{border:none;border-radius:0;padding:0;max-width:none;margin:0}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+`;
+
+function buildStandaloneDoc(title, innerHTML) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)}</title>
+<style>${SHEET_DOC_CSS}</style>
+</head>
+<body>
+<div class="doc-tools">
+  <button type="button" onclick="window.print()">🖨 Print / Save as PDF</button>
+</div>
+${innerHTML}
+</body>
+</html>`;
+}
+
+function safeFileName(txt) {
+  return String(txt || 'report-sheet')
+    .replace(/[^a-z0-9]+/gi, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase() || 'report-sheet';
+}
+
+/* Download the sheet currently shown in the report modal */
+function downloadActiveSheet() {
+  if (!activeReportHTML) { toast('Nothing to download yet.'); return; }
+  const title = activeReportTitle || 'Report Sheet';
+  download(safeFileName(title) + '.html',
+           buildStandaloneDoc(title, activeReportHTML),
+           'text/html');
+  toast('Sheet downloaded — open it and print to PDF.');
+}
+
+/* preview + print */
+function openReportModal(title, html) {
+  $('repModalTitle').textContent = title;
+  $('reportSheet').innerHTML = html;
+  activeReportHTML  = html;
+  activeReportTitle = title;
+  $('reportModal').hidden = false;
+}
+function previewReport(st) {
+  openReportModal('Report Sheet — ' + st.name, buildReportHTML(st));
+}
+$('btnRepView').addEventListener('click', () => {
+  const id = $('repStudent').value;
+  if (!id) { toast('Please select a student.'); return; }
+  const st = data.students.find(s => s.id === id);
+  if (st) previewReport(st);
+});
+$('btnRepPrint').addEventListener('click', () => {
+  const id = $('repStudent').value;
+  if (!id) { toast('Please select a student first.'); return; }
+  const st = data.students.find(s => s.id === id);
+  if (!st) return;
+  openReportModal('Report Sheet — ' + st.name, buildReportHTML(st));
+  setTimeout(() => window.print(), 120);
+});
+$('btnBroView').addEventListener('click', () => {
+  const c = $('broClass').value;
+  if (!c) { toast('Please select a class.'); return; }
+  openReportModal('Broadsheet — ' + c, buildBroadsheetHTML(c));
+});
+$('btnBroPrint').addEventListener('click', () => {
+  const c = $('broClass').value;
+  if (!c) { toast('Please select a class first.'); return; }
+  openReportModal('Broadsheet — ' + c, buildBroadsheetHTML(c));
+  setTimeout(() => window.print(), 120);
+});
+$('btnRepModalPrint').addEventListener('click', () => window.print());
+$('btnRepModalDownload').addEventListener('click', downloadActiveSheet);
+
+/* print class list (students tab) */
+$('btnPrintClassList').addEventListener('click', () => {
+  const fClass = $('stuFilterClass').value;
+  let list = data.students.slice();
+  if (fClass) list = list.filter(s => s.className === fClass);
+  list.sort((a,b) => (a.name || '').localeCompare(b.name || ''));
+  if (!list.length) { toast('No students to print.'); return; }
+
+  const rows = list.map((s, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td class="subj">${esc(s.name)}</td>
+      <td>${esc(s.admissionNo || '—')}</td>
+      <td>${esc(s.gender || '—')}</td>
+      <td>${esc(s.className)}</td>
+      <td>${esc(s.guardianPhone || '—')}</td>
+    </tr>`).join('');
+
+  const html = `
+    <div class="sheet">
+      <div class="sheet-head">
+        <div class="crest-lg">🎓</div>
+        <div>
+          <h2>${esc(data.school.name || 'School Name')}</h2>
+          <p>${esc(data.school.address || '')}</p>
+        </div>
+      </div>
+      <div class="sheet-title">
+        <h3>Student Class List</h3>
+        <p>${esc(fClass || 'All Classes')} &middot; ${esc(data.meta.session)}</p>
+      </div>
+      <table class="sheet-table">
+        <thead>
+          <tr>
+            <th style="width:38px">S/N</th>
+            <th>Name</th>
+            <th style="width:120px">Adm. No.</th>
+            <th style="width:70px">Gender</th>
+            <th style="width:80px">Class</th>
+            <th style="width:130px">Guardian Phone</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  openReportModal('Class List', html);
+});
+
+/* close report modal */
+$('reportModal').addEventListener('click', e => {
+  if (e.target === $('reportModal')) $('reportModal').hidden = true;
+});
+
+/* =========================================================
+   10. SETTINGS
+   ========================================================= */
+function renderSettingsTab() {
+  $('setName').value    = data.school.name || '';
+  $('setAddress').value = data.school.address || '';
+  $('setMotto').value   = data.school.motto || '';
+  $('setTerm').value    = data.meta.term || 'First Term';
+  $('setSession').value = data.meta.session || '';
+  $('setVacation').value = data.meta.vacation || '';
+  $('setResume').value  = data.meta.resumption || '';
+  $('setGradeKey').innerHTML = CONFIG.gradingScale.map(g =>
+    `<span><b>${g.grade}</b> ${g.min}–${g.max} · ${esc(g.remark)}</span>`).join('');
+}
+
+$('setName').addEventListener('input', e => { data.school.name = e.target.value; saveData(); syncSchoolRecord(); });
+$('setAddress').addEventListener('input', e => { data.school.address = e.target.value; saveData(); syncSchoolRecord(); });
+$('setMotto').addEventListener('input', e => { data.school.motto = e.target.value; saveData(); syncSchoolRecord(); });
+$('setTerm').addEventListener('change', e => {
+  data.meta.term = e.target.value;
+  saveData();
+  $('sessionBadge').textContent = data.meta.term + ' • ' + data.meta.session;
+  $('resEntryCard').hidden = true;
+  refreshStudentDropdowns();
+});
+$('setSession').addEventListener('input', e => {
+  data.meta.session = e.target.value;
+  saveData();
+  $('sessionBadge').textContent = data.meta.term + ' • ' + data.meta.session;
+});
+$('setVacation').addEventListener('change', e => { data.meta.vacation = e.target.value; saveData(); });
+$('setResume').addEventListener('change', e => { data.meta.resumption = e.target.value; saveData(); });
+
+function syncSchoolRecord() {
+  $('appSchoolName').textContent = data.school.name || 'School';
+  $('appSchoolMeta').textContent = data.school.address || 'Result Management System';
+}
+
+$('btnWipe').addEventListener('click', () => {
+  if (!confirm('Delete ALL student records for this school? This cannot be undone.')) return;
+  if (!confirm('Are you absolutely sure? Type OK to confirm.')) return;
+  data.students = [];
+  saveData();
+  renderStudentTable();
+  toast('All students deleted.');
+});
+
+/* =========================================================
+   11. BACKUP
+   ========================================================= */
+function exportBackup() {
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    school: { name: data.school.name, address: data.school.address, motto: data.school.motto },
+    meta: data.meta,
+    students: data.students
+  };
+  const safe = String(data.school.name || 'school').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+  download('backup-' + safe + '-' + new Date().toISOString().slice(0,10) + '.json',
+           JSON.stringify(payload, null, 2), 'application/json');
+  toast('Backup downloaded.');
+}
+$('btnExport').addEventListener('click', exportBackup);
+$('btnExport2').addEventListener('click', exportBackup);
+
+function triggerImport() { $('fileImport').click(); }
+$('btnImport').addEventListener('click', triggerImport);
+$('btnImport2').addEventListener('click', triggerImport);
+$('fileImport').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = async ev => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      const d = parsed.data ? parsed.data : parsed;
+      if (!d || typeof d !== 'object') throw new Error('bad');
+      data = {
+        school: Object.assign({ name:'', address:'', motto:'' }, d.school || {}),
+        meta: Object.assign({ term:'First Term', session:'', vacation:'', resumption:'' }, d.meta || {}),
+        students: Array.isArray(d.students) ? d.students : []
+      };
+      await saveDataNow();
+      renderApp();
+      toast('Backup restored and saved on the server.');
+    } catch (err) {
+      alert('That file is not a valid backup.');
+    }
+  };
+  r.readAsText(f);
+  e.target.value = '';
+});
+
+$('btnLogout').addEventListener('click', async () => {
+  if (!confirm('Log out of this school account?')) return;
+  await saveDataNow();
+  try { await api('/api/auth/logout', { method: 'POST' }); } catch (e) {}
+  setToken('');
+  showGate();
+});
+
+/* =========================================================
+   12. UTILITIES
+   ========================================================= */
+function download(filename, content, type) {
+  const blob = new Blob([content], { type: type + ';charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+let toastTimer;
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* =========================================================
+   13. BOOT
+   ========================================================= */
+(async function boot() {
+  if (!authToken) { showGate(); return; }
+  try {
+    const me = await api('/api/auth/session');
+    if (me.type === 'admin') {
+      session = { type: 'admin' };
+      await showAdminPanel();
+      return;
+    }
+    if (me.type === 'school') {
+      session = { type: 'school', schoolId: me.school.id };
+      data = me.data;
+      showApp();
+      return;
+    }
+    showGate();
+  } catch (err) {
+    if (err.status === 401) return;          // forceLogout already showed the gate
+    showGate();
+    setGateMsg('logMsg', err.message, 'err');
+  }
+})();
+</script>
+</body>
+</html>
